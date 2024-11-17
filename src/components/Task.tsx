@@ -9,10 +9,17 @@ interface TaskProps {
 }
 
 export default function Task({ task }: TaskProps) {
+  const setDraggedTask = useStore((store) => store.setDraggedTask);
   const deleteTask = useStore((store) => store.deleteTask);
 
   return (
-    <div className="task">
+    <div
+      className="task"
+      draggable
+      onDragStart={() => {
+        setDraggedTask(task);
+      }}
+    >
       <div>{task.title}</div>
       <div className="bottom-wrapper">
         <button className="delete-task" onClick={() => deleteTask(task.id)}>

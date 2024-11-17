@@ -3,6 +3,7 @@ import { useStore } from "../stores/store";
 import Task from "./Task";
 import { Task as TaskType } from "../types";
 import "./Column.css";
+import classNames from "classnames";
 
 interface ColumnProps {
   state: string;
@@ -11,8 +12,12 @@ interface ColumnProps {
 export default function Column({ state }: ColumnProps) {
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
+  const [drop, setDrop] = useState(false);
 
   const tasks = useStore((store) => store.tasks);
+  const draggedTask = useStore((store) => store.draggedTask);
+  const setDraggedTask = useStore((store) => store.setDraggedTask);
+  const moveTask = useStore((store) => store.moveTask);
   const addTask = useStore((store) => store.addTask);
 
   // Memoize the filtered tasks
@@ -21,7 +26,22 @@ export default function Column({ state }: ColumnProps) {
   }, [tasks, state]);
 
   return (
-    <div className="column">
+    <div
+      className={classNames("column", { drop: drop })}
+      onDragOver={(e) => {
+        setDrop(true);
+        e.preventDefault();
+      }}
+      onDragLeave={(e) => {
+        setDrop(false);
+        e.preventDefault();
+      }}
+      onDrop={() => {
+        setDrop(false);
+        moveTask(draggedTask!.id, state);
+        setDraggedTask(null);
+      }}
+    >
       <div className="title-wrapper">
         <p>{state}</p>
         <button onClick={() => setOpen(true)}>Add</button>
@@ -30,13 +50,14 @@ export default function Column({ state }: ColumnProps) {
         <Task key={task.id} task={task} />
       ))}
       {open && (
-        <div className="modal">
+        <dialog className="modal" open>
           <button
             className="close-modal"
             onClick={() => {
               setText("");
               setOpen(false);
             }}
+            aria-label="Close"
           >
             x
           </button>
@@ -53,7 +74,7 @@ export default function Column({ state }: ColumnProps) {
               Submit
             </button>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );

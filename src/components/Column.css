@@ -5,14 +5,19 @@
   width: 33%;
   max-width: 20rem;
   margin: 0 0.5rem;
-  border-radius: 4px;
-  padding: 0.5rem;
+  border-radius: 8px;
+  border: 2px dashed transparent;
+  padding: 1rem;
+}
+.column.drop {
+  border-color:white;
 }
 
 .title-wrapper {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 0.5rem;
 }
 .title-wrapper button {
   all: unset;

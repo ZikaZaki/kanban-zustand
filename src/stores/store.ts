@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, devtools } from "zustand/middleware";
+import { persist, devtools, subscribeWithSelector } from "zustand/middleware";
 import { Task } from "../types";
 import { produce } from "immer";
 
@@ -53,16 +53,17 @@ const log = (config) => (set, get, api) =>
   );
 
 export const useStore = create(
-  log(persist(devtools(store), { name: "kanban" }))
+  subscribeWithSelector(log(persist(devtools(store), { name: "kanban" })))
 );
 
 // we can use our store
-useStore.subscribe((newStore, prevStore) => {
-  if (newStore.tasks !== prevStore.tasks) {
+useStore.subscribe(
+  (store) => store.tasks,
+  (newTasks) => {
     let planned = 0,
       ongoing = 0,
       done = 0;
-    newStore.tasks.map((task) => {
+    newTasks.forEach((task) => {
       if (task.state === "PLANNED") planned += 1;
       if (task.state === "ONGOING") ongoing += 1;
       if (task.state === "DONE") done += 1;
@@ -73,4 +74,4 @@ useStore.subscribe((newStore, prevStore) => {
       doneTasks: done,
     });
   }
-});
+);

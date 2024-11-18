@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { useStore } from "../stores/store";
 import Task from "./Task";
 import { Task as TaskType } from "../types";
@@ -45,7 +46,7 @@ export default function Column({ state }: ColumnProps) {
 
   const handleAddTask = useCallback(() => {
     if (text.trim()) {
-      addTask(text.trim(), state);
+      addTask(uuidv4(), text.trim(), state);
       setText("");
       setOpen(false);
     }

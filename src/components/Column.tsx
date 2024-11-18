@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useStore } from "../stores/store";
 import Task from "./Task";
 import { Task as TaskType } from "../types";
@@ -22,25 +22,42 @@ export default function Column({ state }: ColumnProps) {
 
   // Memoize the filtered tasks
   const filteredTasks = React.useMemo(() => {
-    return tasks.filter((task) => task.state === state);
+    return tasks.filter((task: TaskType) => task.state === state);
   }, [tasks, state]);
 
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDrop(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDrop(false);
+  }, []);
+
+  const handleDrop = useCallback(() => {
+    setDrop(false);
+    if (draggedTask) {
+      moveTask(draggedTask.id, state);
+      setDraggedTask(null); // Only set to null if there's a dragged task
+    }
+  }, [draggedTask, moveTask, setDraggedTask, state]);
+
+  const handleAddTask = useCallback(() => {
+    if (text.trim()) {
+      addTask(text.trim(), state);
+      setText("");
+      setOpen(false);
+    }
+  }, [text, addTask, state]);
+
   return (
-    <div
-      className={classNames("column", { drop: drop })}
-      onDragOver={(e) => {
-        setDrop(true);
-        e.preventDefault();
-      }}
-      onDragLeave={(e) => {
-        setDrop(false);
-        e.preventDefault();
-      }}
-      onDrop={() => {
-        setDrop(false);
-        moveTask(draggedTask!.id, state);
-        setDraggedTask(null);
-      }}
+    <section
+      className={classNames("column", { drop })}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      aria-labelledby={`column-${state}`}
     >
       <div className="title-wrapper">
         <p>{state}</p>
@@ -62,20 +79,17 @@ export default function Column({ state }: ColumnProps) {
             x
           </button>
           <div className="modal-content">
-            <input onChange={(e) => setText(e.target.value)} value={text} />
-            <button
-              className="modal-submit"
-              onClick={() => {
-                addTask(text, state);
-                setText("");
-                setOpen(false);
-              }}
-            >
+            <input
+              onChange={(e) => setText(e.target.value)}
+              value={text}
+              placeholder="Task title"
+            />
+            <button className="modal-submit" onClick={handleAddTask}>
               Submit
             </button>
           </div>
         </dialog>
       )}
-    </div>
+    </section>
   );
 }

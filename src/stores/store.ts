@@ -1,15 +1,14 @@
+import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 import { Task } from "../types";
-
-let nextId = 1; // ID counter
 
 const store = (set) => ({
   tasks: [] as Task[],
   draggedTask: null as Task | null,
   setDraggedTask: (task: Task | null) =>
     set({ draggedTask: task }, false, "setDraggedTask"),
-  moveTask: (id: number, state: string) =>
+  moveTask: (id: string, state: string) =>
     set(
       (store) => {
         const tasks = store.tasks.map((task) =>
@@ -23,13 +22,13 @@ const store = (set) => ({
   addTask: (title: string, state: string) =>
     set(
       (store) => ({
-        tasks: [...store.tasks, { id: nextId++, title, state }],
+        tasks: [...store.tasks, { id: uuidv4(), title, state }],
       }),
       false,
       "addTask"
     ),
   // Delete a task
-  deleteTask: (id: number) =>
+  deleteTask: (id: string) =>
     set(
       (store) => ({
         tasks: store.tasks.filter((task: Task) => task.id !== id), // Creates a new array reference
@@ -39,4 +38,17 @@ const store = (set) => ({
     ),
 });
 
-export const useStore = create(persist(devtools(store), { name: "kanban" }));
+// Custom Wrapper (Middleware) for logging state
+const log = (config) => (set, get, api) =>
+  config(
+    (...args) => {
+      console.log(args);
+      set(...args);
+    },
+    get,
+    api
+  );
+
+export const useStore = create(
+  log(persist(devtools(store), { name: "kanban" }))
+);

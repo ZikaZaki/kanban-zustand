@@ -22,5 +22,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "tests"], // Include your test files
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"] // Optional: Exclude test files from normal builds if needed
 }

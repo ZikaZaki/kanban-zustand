@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useStore } from "../stores/store";
 import Task from "./Task";
@@ -93,4 +93,20 @@ export default function Column({ state }: ColumnProps) {
       )}
     </section>
   );
+}
+
+// we can store state in refs if we don't want to rerender when the component changes
+function RefTest() {
+  const ref = useRef();
+
+  useEffect(() => {
+    useStore.subscribe(
+      (store) => store.tasks,
+      (tasks) => {
+        ref.current = tasks;
+      }
+    );
+  }, []);
+
+  return ref.current;
 }

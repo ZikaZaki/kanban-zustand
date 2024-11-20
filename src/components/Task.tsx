@@ -4,6 +4,7 @@ import { Task as TaskType } from "../types";
 import "./Task.css";
 import { useStore } from "../stores/store";
 import { Trash } from "lucide-react";
+import Tooltip from "./Tooltip";
 
 interface TaskProps {
   readonly task: TaskType;
@@ -37,13 +38,15 @@ const Task = React.memo(({ task }: TaskProps) => {
     >
       <div>{task.title}</div>
       <div className="bottom-wrapper">
-        <button
-          className="delete-task"
-          onClick={handleDelete}
-          aria-label="Delete task"
-        >
-          <Trash size={20} />
-        </button>
+        <Tooltip text="Delete task">
+          <button
+            className="delete-task"
+            onClick={handleDelete}
+            aria-label="Delete task"
+          >
+            <Trash size={20} />
+          </button>
+        </Tooltip>
         <span className={classNames("status", task.state)}>{task.state}</span>
       </div>
     </summary>
